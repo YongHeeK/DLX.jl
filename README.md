@@ -1,6 +1,7 @@
 # DLX.jl
 Dancing Link Algorithem for rectangles (only works for rectangle!) 
-TODO: need to apply rotation to rectangle...
+
+* TODO: need to apply rotation to rectangle...
 
 ## Installation
 
@@ -30,8 +31,8 @@ DancingLink - 10×10 Array{Integer,2}:
  0  0  0  0  0  0  0  0  0  0
 Members:[(6, 5),(4, 4),(3, 5),(4, 2),(2, 3),(2, 2),(2, 2),(1, 3)] 
 =#
-solve(a)
 
+solve(a)
 #=
 DancingLink - 10×10 Array{Integer,2}:
  1  1  1  1  1  2  2  2  2  0
