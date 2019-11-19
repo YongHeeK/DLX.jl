@@ -1,7 +1,7 @@
 # DLX.jl
-Dancing Link Algorithem for rectangles (only works for rectangle!) 
+Dancing Link Algorithem for squares (only works for squares!) 
 
-* TODO: need to apply rotation to rectangle...
+* TODO: need to apply rotation...
 
 ## Installation
 
