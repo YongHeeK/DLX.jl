@@ -15,8 +15,10 @@ struct DancingLink
 end
 function DancingLink(world::Tuple, members)
     step = 0
+    board = zeros(Int16, world)
+    slots = Tuple[]
+
     if sum(el -> el[1]*el[2], members) <= world[1] * world[2]        
-        board = zeros(Int16, world)
         sort!(members; by = el -> el[1]*el[2], rev = true) #큰거부터 정렬
         
         slots = find_slot(board, members[1])
