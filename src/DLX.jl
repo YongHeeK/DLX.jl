@@ -1,6 +1,6 @@
 module DLX
 
-export DancingLink, solve, is_solved
+export DancingLink, is_solved
 
 """
     DancingLink
