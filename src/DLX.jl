@@ -18,17 +18,19 @@ function DancingLink(world::Tuple, members)
     board = zeros(Int16, world)
     slots = Tuple[]
 
-    if sum(el -> el[1]*el[2], members) <= world[1] * world[2]        
-        sort!(members; by = el -> el[1]*el[2], rev = true) #큰거부터 정렬
+    if sum(el -> el[1]*el[2], members) <= world[1] * world[2]    
+        # TODO: 못 넣을 때 이거 순서 바꾸면 가능해짐...    
+        sort!(members; by = el -> el[1]*el[2], rev = true) 
         
-        slots = find_slot(board, members[1])
+        slots = search_slot(board, members[1])
         if !isempty(slots)
             step = 1
             board = fillboard(board, slots[1], members[step])
         end
     end
     # return setp=0 if it's not feasible
-    DancingLink(missing, board, members, step, slots, 1)
+    me = DancingLink(missing, board, members, step, slots, 1)
+    solve(me)
 end
 function solve(me::DancingLink)
     if is_solved(me)
@@ -51,7 +53,7 @@ function wind(me::DancingLink)
     members = me.members
 
     step = me.step+1
-    slots = find_slot(board, members[step])
+    slots = search_slot(board, members[step])
 
     board = fillboard(board, slots[1], members[step])
     DancingLink(me, board, members, step, slots, 1)
@@ -73,7 +75,7 @@ function is_solved(x::DancingLink)
 end
 function is_windable(me::DancingLink)
     if me.step < length(me.members)
-        slots = find_slot(me.board, me.members[me.step+1])
+        slots = search_slot(me.board, me.members[me.step+1])
         if !isempty(slots) 
             return true
         end
@@ -95,8 +97,8 @@ function Base.show(io::IO, x::DancingLink)
     display(x.board)
     print(io, "Members:[")
     for (i, el) in enumerate(x.members)
-        col = i == x.step ? :green : :normal
-        printstyled(io, el; color = col)
+        cor = i <= x.step ? :green : :normal
+        printstyled(io, el; color = cor)
 
         i == length(x.members) ? print(io, "]") : print(io, ",")
     end
@@ -106,50 +108,53 @@ end
 # 
 function fillboard(board, cod, target)
     b = copy(board)
-    b[cod[1]:cod[1]+target[1]-1, cod[2]:cod[2]+target[2]-1] .= maximum(board) +1
+    b[cod[1], cod[2]] .= maximum(board) +1
 
     return b
 end
 
 """
-    find_slot
+    search_slot(board, member_size)
 
 if value iszero and top-left value is nonzero
-#TODO add rotation cases
 """
-function find_slot(board, bd_size::Tuple)
+function search_slot(board, memeger::Tuple)
+    a = _search(board, memeger)
+    if memeger[1] != memeger[2]
+        a = append!(a, _search(board, reverse(memeger)))
+    end
+    return a
+end
+
+function _search(board, member::Tuple)
+    function ifpossible_add!(storage, r, c) 
+        rg_row = r:(r + member[1] - 1)
+        rg_col = c:(c + member[2] - 1)
+        if last(rg_row) <= board_size[1] && last(rg_col) <= board_size[2]
+            push!(storage, (rg_row, rg_col))
+        end
+    end
     # Row=1이면 왼쪽이 notzero Col은 무관
     # Col=1이면 위가 notzero Row는 무관
     # 그외에는 왼쪽과 위가 모두 notzero 
     cods = Tuple[]
-    function isfillable(r, c) 
-        (board_size[1] - r + 1) >= bd_size[1] && (board_size[2] - c + 1) >= bd_size[2]
-    end
-
     board_size = size(board)
+
     for row in 1:board_size[1], col in 1:board_size[2]
         if iszero(board[row, col])
             if row == 1 && col == 1
-                if isfillable(row, col)
-                    push!(cods, (row, col))
-                end
+                ifpossible_add!(cods, row, col) 
             elseif row == 1 && col > 1
                 if !iszero(board[row, col-1]) 
-                    if isfillable(row, col)
-                        push!(cods, (row, col))
-                    end
+                    ifpossible_add!(cods, row, col)
                 end
             elseif row > 1 && col == 1
                 if !iszero(board[row-1, col]) 
-                    if isfillable(row, col)
-                        push!(cods, (row, col))
-                    end
+                    ifpossible_add!(cods, row, col)
                 end
             else
                 if !iszero(board[row-1, col]) && !iszero(board[row, col-1])  
-                    if isfillable(row, col)
-                        push!(cods, (row, col))
-                    end
+                    ifpossible_add!(cods, row, col)
                 end
             end
         end
