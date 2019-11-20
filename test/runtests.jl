@@ -3,27 +3,23 @@ using DLX
 
 
 # prepare test datas
-worlds = []
-for i in 5:20, j in 4:2:20
-    push!(worlds, (i, j))
-end
-sets = [[(2,2), (2,2), (3,3)], 
-        [(2,4), (2,2), (3,5)],
-        [(2,4), (2,5), (3,5), (3,5), (4,7)]]
+worlds = [(5,5), (5,10), (10, 10), (10, 15), (20, 20), (20, 50)]
+
+sets = [[(3,3), (2,2)], 
+        [(4,4), (4,3), (4,2), (3,2), (2,2), (2,1)],
+        [(8,8), (8,7), (8,6), (7,5), (7,4), (7,3), (6,2), (5,5), (4,2)]]
 
 @testset "Some Random Test" begin
     for w in worlds
-
-        a = DancingLink(w, sets[1])
-        b = DancingLink(w, sets[2])
-        c = DancingLink(w, sets[3])
-
-        a2 = solve(a)
-        b2 = solve(b)
-        c2 = solve(c)
-        
-        @test is_solved(a2)
-        @test is_solved(b2)
-        @test is_solved(c2)
+        world_area = w[1] * w[2]
+        for s in sets
+            a = DancingLink(w, sets[1])
+            
+            if world_area >= sum(el -> el[1] * el[2], s)
+                @test is_solved(a)
+            else 
+                @test !is_solved(a)
+            end
+        end
     end
 end
