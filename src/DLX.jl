@@ -18,20 +18,61 @@ function DancingLink(world::Tuple, members)
     board = zeros(Int16, world)
     slots = Tuple[]
 
-    if sum(el -> el[1]*el[2], members) <= world[1] * world[2]    
-        # TODO: 못 넣을 때 이거 순서 바꾸면 가능해짐...    
-        sort!(members; by = el -> el[1]*el[2], rev = true) 
-        
-        slots = search_slot(board, members[1])
-        if !isempty(slots)
-            step = 1
-            board = fillboard(board, slots[1], members[step])
+    if !isempty(members)
+        if sum(el -> el[1]*el[2], members) <= world[1] * world[2]    
+            # TODO: 못 넣을 때 이거 순서 바꾸면 가능해짐...    
+            sort!(members; by = el -> el[1]*el[2], rev = true) 
+            
+            slots = search_slot(board, members[1])
+            if !isempty(slots)
+                step = 1
+                board = fillboard(board, slots[1], members[step])
+            end
         end
     end
     # return setp=0 if it's not feasible
     me = DancingLink(missing, board, members, step, slots, 1)
     solve(me)
 end
+"""
+    DancingLink(worlds::Vector, members)
+
+제일 큰 world에 전부 구겨넣기, 남는거만 다음 world로 전달
+"""
+function DancingLink(worlds::Vector, members)
+    sort!(worlds; by = el -> el[1] * el[2], rev = true)
+
+    solutions = []
+    for w in worlds
+        i = length(members)
+
+        while true 
+            if i == 0 
+                push!(solutions, DancingLink(w, members))
+                break
+            end
+            sol = DancingLink(w, members[1:i])
+            if is_solved(sol) 
+                push!(solutions, sol)
+                if i < length(members)
+                    members = members[i+1:end]
+                else
+                    members = [] 
+                end
+                break
+            else 
+                i -= 1
+            end
+
+        end
+    end
+    if length(members) > 0 
+        @warn "DancingLink - $(members) cannot fit into any world"
+    end
+    return solutions
+end
+
+
 function solve(me::DancingLink)
     if is_solved(me)
         me

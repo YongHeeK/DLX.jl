@@ -23,3 +23,10 @@ sets = [[(3,3), (2,2)],
         end
     end
 end
+
+
+@testset "Multiple world" begin 
+
+    x = DancingLink(worlds[1:2], vcat(sets...))
+
+end
