@@ -168,34 +168,22 @@ function search_slot(board, memeger::Tuple)
 end
 
 function _search(board, member::Tuple)
-    function ifpossible_add!(storage, r, c) 
-        rg_row = r:(r + member[1] - 1)
-        rg_col = c:(c + member[2] - 1)
-        if last(rg_row) <= board_size[1] && last(rg_col) <= board_size[2]
-            push!(storage, (rg_row, rg_col))
-        end
-    end
     # Row=1이면 왼쪽이 notzero Col은 무관
     # Col=1이면 위가 notzero Row는 무관
     # 그외에는 왼쪽과 위가 모두 notzero 
     cods = Tuple[]
     board_size = size(board)
 
-    for row in 1:board_size[1], col in 1:board_size[2]
-        if iszero(board[row, col])
-            if row == 1 && col == 1
-                ifpossible_add!(cods, row, col) 
-            elseif row == 1 && col > 1
-                if !iszero(board[row, col-1]) 
-                    ifpossible_add!(cods, row, col)
-                end
-            elseif row > 1 && col == 1
-                if !iszero(board[row-1, col]) 
-                    ifpossible_add!(cods, row, col)
-                end
-            else
-                if !iszero(board[row-1, col]) && !iszero(board[row, col-1])  
-                    ifpossible_add!(cods, row, col)
+    for row in 1:board_size[1]
+        for col in 1:board_size[2]
+            if iszero(board[row, col])
+                rg_row = row:(row + member[1] - 1)
+                rg_col = col:(col + member[2] - 1)
+                if last(rg_row) <= board_size[1] && last(rg_col) <= board_size[2]
+                    # 또한 이 영역이 전부 0이어야 한다 
+                    if iszero(sum(board[rg_row, rg_col]))
+                        push!(cods, (rg_row, rg_col))
+                    end
                 end
             end
         end
